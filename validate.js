@@ -1,6 +1,6 @@
 /*
- * validate.js 1.3.1
- * Copyright (c) 2011 - 2014 Rick Harrison, http://rickharrison.me
+ * validate.js 1.3
+ * Copyright (c) 2013 Rick Harrison, http://rickharrison.me
  * validate.js is open sourced under the MIT license.
  * Portions of validate.js are inspired by CodeIgniter.
  * http://rickharrison.github.com/validate.js
@@ -14,29 +14,28 @@
 
     var defaults = {
         messages: {
-            required: 'The %s field is required.',
-            matches: 'The %s field does not match the %s field.',
-            "default": 'The %s field is still set to default, please change.',
-            valid_email: 'The %s field must contain a valid email address.',
-            valid_emails: 'The %s field must contain all valid email addresses.',
-            min_length: 'The %s field must be at least %s characters in length.',
-            max_length: 'The %s field must not exceed %s characters in length.',
-            exact_length: 'The %s field must be exactly %s characters in length.',
-            greater_than: 'The %s field must contain a number greater than %s.',
-            less_than: 'The %s field must contain a number less than %s.',
-            alpha: 'The %s field must only contain alphabetical characters.',
-            alpha_numeric: 'The %s field must only contain alpha-numeric characters.',
-            alpha_dash: 'The %s field must only contain alpha-numeric characters, underscores, and dashes.',
-            numeric: 'The %s field must contain only numbers.',
-            integer: 'The %s field must contain an integer.',
-            decimal: 'The %s field must contain a decimal number.',
-            is_natural: 'The %s field must contain only positive numbers.',
-            is_natural_no_zero: 'The %s field must contain a number greater than zero.',
-            valid_ip: 'The %s field must contain a valid IP.',
-            valid_base64: 'The %s field must contain a base64 string.',
-            valid_credit_card: 'The %s field must contain a valid credit card number.',
-            is_file_type: 'The %s field must contain only %s files.',
-            valid_url: 'The %s field must contain a valid URL.'
+            required: '%s 不能为空。',
+            matches: ' %s 与 %s 输入不一致。',
+            valid_email: '%s 输入无效',
+            valid_emails: '%s 输入无效',
+            min_length: '%s 至少 %s 个字符。',
+            max_length: '%s 最多 %s 个字符。',
+            exact_length: '%s 只能 %s 个字符。',
+            greater_than: '%s 必须是大于 %s 的数字。',
+            less_than: '%s 必须是小于 %s 的数字。',
+            alpha: '%s 必须是英文字母。',
+            alpha_numeric: '你的 %s 必須只有英文字母或數字。',
+            alpha_dash: '%s 只能是英文字母、数字、下划线和横线',
+            numeric: '%s 只能是数字。',
+            integer: '%s 只能是整数。',
+            decimal: '%s 必须是小数。',
+            is_natural: '%s 必须是正数。',
+            is_natural_no_zero: '%s 必须是大于零的数字。',
+            valid_ip: '%s 必须是有效的IP。',
+            valid_base64: '%s 必须是 base64 字符。',
+            valid_credit_card: '%s 必须是有效的信用卡号。',
+            is_file_type: '%s 只能是 %s 的文件。',
+            valid_url: '%s 必须是有效的 URL。'
         },
         callback: function(errors) {
 
@@ -97,7 +96,7 @@
              */
 
             if (field.names) {
-                for (var j = 0, fieldNamesLength = field.names.length; j < fieldNamesLength; j++) {
+                for (var j = 0; j < field.names.length; j++) {
                     this._addField(field, field.names[j]);
                 }
             } else {
@@ -124,7 +123,7 @@
         var i;
 
         if ((element.length > 0) && (element[0].type === 'radio' || element[0].type === 'checkbox')) {
-            for (i = 0, elementLength = element.length; i < elementLength; i++) {
+            for (i = 0; i < element.length; i++) {
                 if (element[i].checked) {
                     return element[i][attributeName];
                 }
@@ -269,7 +268,7 @@
                 method = parts[1];
                 param = parts[2];
             }
-
+            
             if (method.charAt(0) === '!') {
                 method = method.substring(1, method.length);
             }
@@ -301,14 +300,17 @@
                 // Make sure we have a message for this rule
                 var source = this.messages[method] || defaults.messages[method],
                     message = 'An error has occurred with the ' + field.display + ' field.';
-
-                if (source) {
-                    message = source.replace('%s', field.display);
-
-                    if (param) {
-                        message = message.replace('%s', (this.fields[param]) ? this.fields[param].display : param);
-                    }
-                }
+            	if (source) {
+            		if(field.display.endWith("$$")){
+            			message = field.display.substring(0,field.display.length-2);
+            		}else{
+            			message = source.replace('%s', field.display);
+            		}
+            		
+            		if (param) {
+            			message = message.replace('%s', (this.fields[param]) ? this.fields[param].display : param);
+            		}
+            	}
 
                 this.errors.push({
                     id: field.id,
@@ -322,6 +324,18 @@
             }
         }
     };
+    /**
+     * field.display.endWith()
+     */
+    String.prototype.endWith=function(s){
+    	  if(s==null||s==""||this.length==0||s.length>this.length)
+    	     return false;
+    	  if(this.substring(this.length-s.length)==s)
+    	     return true;
+    	  else
+    	     return false;
+    	  return true;
+    	 }
 
     /*
      * @private
@@ -338,7 +352,7 @@
 
             return (value !== null && value !== '');
         },
-
+        
         "default": function(field, defaultName){
             return field.value !== defaultName;
         },
@@ -360,7 +374,7 @@
         valid_emails: function(field) {
             var result = field.value.split(",");
 
-            for (var i = 0, resultLength = result.length; i < resultLength; i++) {
+            for (var i = 0; i < result.length; i++) {
                 if (!emailRegex.test(result[i])) {
                     return false;
                 }
